@@ -1,0 +1,63 @@
+
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+df = pd.read_csv(r'C:\Users\HP-Laprop\Downloads\AEP_hourly.csv.zip/AEP_hourly.csv')
+
+print(df)
+df['Date'] =pd.to_datetime(df['Date'] +' '+ df['Hour'], format='%d.%m.%Y %H:%M')
+pd.date_range(start = '2016-01-01 00:00:00', end = '2020-03-24 00:00:00', freq = 'D').difference(df.Date)
+
+df = df.drop('Hour', axis = 1)
+
+df.head()
+df['Consumption (MWh)'] = df['Consumption (MWh)'].str.replace(',','')
+df['Consumption (MWh)'] = pd.to_numeric(df['Consumption (MWh)'])
+
+df = df.sort_values('Date')
+
+df.head()
+
+df.info()
+df.set_index('Date').plot(style='.', figsize=(15,5), title='Consumption vs. Date')
+plt.show()
+
+
+plt.figure(figsize = (15, 7))
+ax = sns.boxplot(x=df['Date'].dt.hour, y="Consumption (MWh)", data=df)
+plt.title('Hourly Consumption', fontsize=11)
+
+
+df['hour'] = df['Date'].dt.hour
+df['day_of_week'] = df['Date'].dt.dayofweek
+df['month'] = df['Date'].dt.month
+
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_squared_error
+X = df[['hour', 'day_of_week', 'month']]  # Features
+y = df['Consumption (MWh)']  # Target variable
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42
+
+
+model = RandomForestRegressor(n_estimators=100, random_state=0)
+model.fit(X_train, y_train)
+
+y_pred = model.predict(X_test)
+mse = mean_squared_error(y_test, y_pred)
+print('Mean Squared Error:', mse)
+
+from sklearn.metrics import r2_score
+
+r2_score(y_test, y_pred)
+
+
+model.predict([[0 , 3 , 12 ]])
+
+
+df
+
+corr = df.corr()
+corr
